@@ -558,3 +558,134 @@ bootstrapApplication(App);
 }
 
 bootstrapApplication(App);
+
+
+
+import 'zone.js';
+import { Component } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="main-container">
+      <h1>Τα Προϊόντα μας</h1>
+      <div *ngIf="cart.length > 0" >
+      
+
+ 
+   <p *ngIf="Sum>=300" > Μπορείς να παραγγείλεις </p>
+</div>
+      
+      <div class="search-section">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Αναζήτηση προϊόντος..." 
+        />
+      </div>
+
+      <div class="grid">
+        <div *ngFor="let service of filteredService" 
+             class="card" 
+             [style.border-top-color]="service.color">
+          
+          <div class="card-header">
+            <span class="icon">{{service.icon}}</span>
+            <h3>{{service.title}}</h3>
+          </div>
+
+          <p class="description">{{service.description}}</p>
+          
+          <div class="specs">
+            <span><strong>Μέγεθος:</strong> {{service.size}}</span>
+            <span><strong>Χρώμα:</strong> {{service.color}}</span>
+          </div>
+
+          <div class="price-tag">
+            {{service.price}}€
+          </div>
+          <button class="add-btn" (click)="addToCart(service)">
+            Προσθήκη στο Καλάθι
+          </button>
+         
+        </div>
+        
+      </div>
+           
+
+      <div *ngIf="cart.length > 0" class="selection-footer">
+        <p>🛒 Καλάθι: <strong>{{cart.length}}</strong> προϊόντα | 
+           Τελικό Ποσό: <strong>{{Sum}}€</strong>
+        </p>
+        <button class= "clear-btn" (click) = "cart = []">Άδειασμα</button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .main-container { padding: 40px 20px; font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; min-height: 100vh; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 6px solid #ccc; display: flex; flex-direction: column; }
+    .price-tag { font-size: 26px; font-weight: 800; color: #2ecc71; margin-bottom: 15px; }
+    
+    .add-btn {
+      background: #3498db; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+
+    .selection-footer {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #333; color: white; padding: 15px 30px; border-radius: 50px;
+      display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .clear-btn { background: #e74c3c; border: none; color: white; padding: 5px 10px; border-radius: 10px; cursor: pointer; margin-left: 10px; }
+  `]
+})
+export class App {
+  searchTerm: string = '';
+  cart: any[] = [];
+
+  myServices = [
+    { title: 'Παπούτσια Nike', icon: 'N', price: 50, color: '#000000', description: 'Κορυφαία ποιότητα δέρματος', size: '42' },
+    { title: 'Παπούτσια Adidas', icon: 'A', price: 80, color: '#e74c3c', description: 'Αθλητικό στυλ για κάθε μέρα', size: '44' },
+    { title: 'Μπλούζα Adidas', icon: 'A', price: 25, color: '#2ecc71', description: '100% Βαμβακερό ύφασμα', size: 'L' },
+    { title: 'Μπλούζα Nike', icon: 'N', price: 30, color: '#f1c40f', description: 'Dry-fit τεχνολογία', size: 'M' },
+    { title: 'Casual Jacket', icon: 'J', price: 120, color: '#34495e', description: 'Αδιάβροχο και ζεστό', size: 'XL' },
+    { title: 'Shorts Nike', icon: 'S', price: 20, color: '#9b59b6', description: 'Άνεση στην προπόνηση', size: 'S' }
+  ];
+
+  get filteredService() {
+    return this.myServices.filter(service =>
+      service.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  addToCart(product: any) {
+    this.cart.push(product);
+  }
+
+
+  get Sum() {
+    let sum = 0; 
+    for (let item of this.cart) 
+    { sum = sum + item.price; } 
+    return sum*0.9;
+
+  }
+
+get Progress() {
+const target=300;
+const percent = (this.Sum/target)*100;
+return percent;
+
+
+
+}
+
+}
+
+bootstrapApplication(App);
