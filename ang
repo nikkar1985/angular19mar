@@ -1,0 +1,111 @@
+import 'zone.js';
+import {Component} from '@angular/core';
+import {bootstrapApplication} from '@angular/platform-browser';
+import {CommonModule} from '@angular/common'
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports : [CommonModule],
+  template: `
+   <div class="main-container" >
+<h1> Τα προιόντα μας </h1>
+<div class="grid">
+
+<div *ngFor= "let service of myServices"
+class = "card"
+[style.border-top-color]="service.color"
+(click)="selectService(service.title)">
+<p> {{service.title}} </p>
+<div class="icon"> {{service.icon}} </div>
+<p> {{service.description}} </p>
+<span class="price"> {{service.price}}</span>
+</div>
+
+</div>
+
+<div *ngIf="selectedService">
+Επιλέξατε την υπηρεσίας {{selectedService}}
+
+</div>
+</div>
+
+  `,
+styles: [`
+.main-container {padding : 50px;
+font-family:sans-serif;
+background-color:#f4f4f4;
+min-height:100vh;
+text-align:center;
+}
+.grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))
+
+}
+
+.card {
+  background:white;
+  padding: 20px;
+  border-radius:8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  cursor:pointer ;
+}
+
+p {
+  color: red; font-size: 18px;
+}
+.price {
+margin-top:22px;
+font-size: 14px;
+font-weight:bold;
+
+
+}
+.icon {
+margin-top:22px;
+font-size: 14px;
+font-weight:bold;
+
+
+}
+
+
+`
+
+
+
+]
+
+
+
+
+})
+export class App {
+  
+selectedService: string = '';
+myServices = [
+{title: 'Παπούτσια Nike', icon : 'N', price: 50, color: '#ffffff', description : 'Δερμάτινα'},
+{title: 'Παπούτσια Adidas', icon : 'A', price: 80, color: '#aaaaaa', description : 'Δερμάτινα'},
+{title: 'Μπλούζα Adidas', icon : 'A', price: 10, color: '#aaaaaa', description : 'Δερμάτινα'},
+{title: 'Μπλούζα Adidas', icon : 'A', price: 10, color: '#aaaaaa', description : 'Δερμάτινα'},
+{title: 'Μπλούζα Adidas', icon : 'A', price: 10, color: '#aaaaaa', description : 'Δερμάτινα'},
+{title: 'Μπλούζα Adidas', icon : 'A', price: 10, color: '#aaaaaa', description : 'Δερμάτινα'}
+] ;
+
+selectService(title:string) {
+this.selectedService = title;
+
+
+}
+
+
+
+
+
+
+
+
+}
+
+bootstrapApplication(App);
