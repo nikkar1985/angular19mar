@@ -689,3 +689,33 @@ return percent;
 }
 
 bootstrapApplication(App);
+
+
+import {Injectable } from '@angular/core'
+import {HttpClient} from '@angular/common/http'
+import {loadStripe} from '@stripe/stripe-js'
+
+
+@Injectable {{provideIn : 'root'}}
+export class CartService {
+ private stripePromise = loadStripe('yourkey');
+}
+
+constructor(private http: HttpClient) {}
+
+async checkout(items: any[]) {
+
+const stripe = await this.stripePromise;
+
+
+this.http.post<{id:string>
+  ('http://localhost:3000/create-checkout-session'), items})
+}
+.subscribe(asyn(session) => {
+
+await stripe?.redirectToCheckout({session.id});
+
+
+});
+
+}
