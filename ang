@@ -719,3 +719,46 @@ await stripe?.redirectToCheckout({session.id});
 });
 
 }
+
+
+
+const express = require('express');
+const stripe = require('stripe')('your_secret_key_here'); // Αντικατάστησε με το δικό σου κλειδί
+const cors = require('cors');
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+app.post('/create-checkout-session', async (req, res) => {
+    try {
+        const { items } = req.body; 
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'eur', 
+                        product_data: {
+                            name: 'Όνομα Προϊόντος', 
+                        },
+                        unit_amount: 2000, 
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: 'http://localhost:3000/success',
+            cancel_url: 'http://localhost:3000/cancel',
+        });
+
+        /
+        res.json({ id: session.id });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
