@@ -97,8 +97,457 @@ selectService(title:string) {
 this.selectedService = title;
 
 
+
+import 'zone.js';
+import { Component } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="main-container">
+      <h1>Τα Προϊόντα μας</h1>
+      
+      <div class="search-section">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Αναζήτηση προϊόντος..." 
+        />
+      </div>
+
+      <div class="grid">
+        <div *ngFor="let service of filteredService" 
+             class="card" 
+             [style.border-top-color]="service.color"
+             (click)="selectService(service.title)">
+          
+          <div class="card-header">
+            <span class="icon">{{service.icon}}</span>
+            <h3>{{service.title}}</h3>
+          </div>
+
+          <p class="description">{{service.description}}</p>
+          
+          <div class="specs">
+            <span><strong>Μέγεθος:</strong> {{service.size}}</span>
+            <span><strong>Χρώμα:</strong> {{service.color}}</span>
+          </div>
+
+          <div class="price-tag">
+            {{service.price}}€
+          </div>
+        <button class="add-btn"
+        (click)="addToCard(service)">
+        Προσθήκη στο Καλάθι
+</button>
+
+
+        </div>
+      </div>
+
+      <div *ngIf="selectedService" class="selection-footer">
+        <p>Επιλέξατε: <strong>{{selectedService}}</strong></p>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .main-container {
+      padding: 40px 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      color: #1a1a1a;
+      font-weight: 700;
+      margin-bottom: 30px;
+      letter-spacing: -1px;
+    }
+
+    /* Search Bar */
+    .search-section {
+      margin-bottom: 40px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 500px;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      transform: scale(1.02);
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Card Styling */
+    .card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-top: 6px solid #ccc; /* Fallback color */
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-12px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+
+    .card-header h3 {
+      margin: 10px 0;
+      font-size: 22px;
+      color: #333;
+    }
+
+    .icon {
+      display: inline-block;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      background: #f8f9fa;
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .description {
+      color: #777;
+      font-size: 15px;
+      margin: 15px 0;
+    }
+
+    .specs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 13px;
+      color: #999;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .price-tag {
+      margin-top: auto;
+      font-size: 26px;
+      font-weight: 800;
+      color: #2ecc71;
+    }
+
+    /* Footer Message */
+    .selection-footer {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 50px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { bottom: -50px; opacity: 0; }
+      to { bottom: 20px; opacity: 1; }
+    }
+  `]
+})
+export class App {
+  searchTerm: string = '';
+  selectedService: string = '';
+
+  cart: any[] = [] ;
+
+  myServices = [
+    { title: 'Παπούτσια Nike', icon: 'N', price: 50, color: '#000000', description: 'Κορυφαία ποιότητα δέρματος', size: '42' },
+    { title: 'Παπούτσια Adidas', icon: 'A', price: 80, color: '#e74c3c', description: 'Αθλητικό στυλ για κάθε μέρα', size: '44' },
+    { title: 'Μπλούζα Adidas', icon: 'A', price: 25, color: '#2ecc71', description: '100% Βαμβακερό ύφασμα', size: 'L' },
+    { title: 'Μπλούζα Nike', icon: 'N', price: 30, color: '#f1c40f', description: 'Dry-fit τεχνολογία', size: 'M' },
+    { title: 'Casual Jacket', icon: 'J', price: 120, color: '#34495e', description: 'Αδιάβροχο και ζεστό', size: 'XL' },
+    { title: 'Shorts Nike', icon: 'S', price: 20, color: '#9b59b6', description: 'Άνεση στην προπόνηση', size: 'S' }
+  ];
+
+  get filteredService() {
+    return this.myServices.filter(service =>
+      service.title.toLowerCase().includes(this.searchTerm.toLowerCase()) 
+    );
+  }
+
+  selectService(title: string) {
+    this.selectedService = title;
+  }
+
+
+addToCard(product: any) {
+this.cart.push(product)
+
+
 }
 
+}
+
+bootstrapApplication(App);
+
+
+
+import 'zone.js';
+import { Component } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="main-container">
+      <h1>Τα Προϊόντα μας</h1>
+      
+      <div class="search-section">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Αναζήτηση προϊόντος..." 
+        />
+      </div>
+
+      <div class="grid">
+        <div *ngFor="let service of filteredService" 
+             class="card" 
+             [style.border-top-color]="service.color">
+          
+          <div class="card-header">
+            <span class="icon">{{service.icon}}</span>
+            <h3>{{service.title}}</h3>
+          </div>
+
+          <p class="description">{{service.description}}</p>
+          
+          <div class="specs">
+            <span><strong>Μέγεθος:</strong> {{service.size}}</span>
+            <span><strong>Χρώμα:</strong> {{service.color}}</span>
+          </div>
+
+          <div class="price-tag">
+            {{service.price}}€
+          </div>
+          
+          <button class="add-btn" (click)="addToCart(service)">
+            Προσθήκη στο Καλάθι
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cart.length > 0" class="selection-footer">
+        <p>🛒 Καλάθι: <strong>{{cart.length}}</strong> προϊόντα | 
+           Τελικό Ποσό: <strong>{{totalSum}}€</strong>
+        </p>
+        <button >Άδειασμα</button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .main-container { padding: 40px 20px; font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; min-height: 100vh; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 6px solid #ccc; display: flex; flex-direction: column; }
+    .price-tag { font-size: 26px; font-weight: 800; color: #2ecc71; margin-bottom: 15px; }
+    
+    .add-btn {
+      background: #3498db; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+
+    .selection-footer {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #333; color: white; padding: 15px 30px; border-radius: 50px;
+      display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .clear-btn { background: #e74c3c; border: none; color: white; padding: 5px 10px; border-radius: 10px; cursor: pointer; margin-left: 10px; }
+  `]
+})
+export class App {
+  searchTerm: string = '';
+  cart: any[] = [];
+
+  myServices = [
+    { title: 'Παπούτσια Nike', icon: 'N', price: 50, color: '#000000', description: 'Κορυφαία ποιότητα δέρματος', size: '42' },
+    { title: 'Παπούτσια Adidas', icon: 'A', price: 80, color: '#e74c3c', description: 'Αθλητικό στυλ για κάθε μέρα', size: '44' },
+    { title: 'Μπλούζα Adidas', icon: 'A', price: 25, color: '#2ecc71', description: '100% Βαμβακερό ύφασμα', size: 'L' },
+    { title: 'Μπλούζα Nike', icon: 'N', price: 30, color: '#f1c40f', description: 'Dry-fit τεχνολογία', size: 'M' },
+    { title: 'Casual Jacket', icon: 'J', price: 120, color: '#34495e', description: 'Αδιάβροχο και ζεστό', size: 'XL' },
+    { title: 'Shorts Nike', icon: 'S', price: 20, color: '#9b59b6', description: 'Άνεση στην προπόνηση', size: 'S' }
+  ];
+
+  get filteredService() {
+    return this.myServices.filter(service =>
+      service.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  addToCart(product: any) {
+    this.cart.push(product);
+  }
+
+
+  get totalSum() {
+    let sum = 0; 
+    for (let item of this.cart) 
+    { sum = sum + item.price; } 
+    return sum;
+
+  }
+}
+
+bootstrapApplication(App);
+
+
+}
+
+
+import 'zone.js';
+import { Component } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="main-container">
+      <h1>Τα Προϊόντα μας</h1>
+      
+      <div class="search-section">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Αναζήτηση προϊόντος..." 
+        />
+      </div>
+
+      <div class="grid">
+        <div *ngFor="let service of filteredService" 
+             class="card" 
+             [style.border-top-color]="service.color">
+          
+          <div class="card-header">
+            <span class="icon">{{service.icon}}</span>
+            <h3>{{service.title}}</h3>
+          </div>
+
+          <p class="description">{{service.description}}</p>
+          
+          <div class="specs">
+            <span><strong>Μέγεθος:</strong> {{service.size}}</span>
+            <span><strong>Χρώμα:</strong> {{service.color}}</span>
+          </div>
+
+          <div class="price-tag">
+            {{service.price}}€
+          </div>
+          <button class="add-btn" (click)="addToCart(service)">
+            Προσθήκη στο Καλάθι
+          </button>
+         
+        </div>
+        
+      </div>
+           
+
+      <div *ngIf="cart.length > 0" class="selection-footer">
+        <p>🛒 Καλάθι: <strong>{{cart.length}}</strong> προϊόντα | 
+           Τελικό Ποσό: <strong>{{Sum}}€</strong>
+        </p>
+        <button class= "clear-btn" (click) = "cart = []">Άδειασμα</button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .main-container { padding: 40px 20px; font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; min-height: 100vh; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 6px solid #ccc; display: flex; flex-direction: column; }
+    .price-tag { font-size: 26px; font-weight: 800; color: #2ecc71; margin-bottom: 15px; }
+    
+    .add-btn {
+      background: #3498db; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+
+    .selection-footer {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #333; color: white; padding: 15px 30px; border-radius: 50px;
+      display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .clear-btn { background: #e74c3c; border: none; color: white; padding: 5px 10px; border-radius: 10px; cursor: pointer; margin-left: 10px; }
+  `]
+})
+export class App {
+  searchTerm: string = '';
+  cart: any[] = [];
+
+  myServices = [
+    { title: 'Παπούτσια Nike', icon: 'N', price: 50, color: '#000000', description: 'Κορυφαία ποιότητα δέρματος', size: '42' },
+    { title: 'Παπούτσια Adidas', icon: 'A', price: 80, color: '#e74c3c', description: 'Αθλητικό στυλ για κάθε μέρα', size: '44' },
+    { title: 'Μπλούζα Adidas', icon: 'A', price: 25, color: '#2ecc71', description: '100% Βαμβακερό ύφασμα', size: 'L' },
+    { title: 'Μπλούζα Nike', icon: 'N', price: 30, color: '#f1c40f', description: 'Dry-fit τεχνολογία', size: 'M' },
+    { title: 'Casual Jacket', icon: 'J', price: 120, color: '#34495e', description: 'Αδιάβροχο και ζεστό', size: 'XL' },
+    { title: 'Shorts Nike', icon: 'S', price: 20, color: '#9b59b6', description: 'Άνεση στην προπόνηση', size: 'S' }
+  ];
+
+  get filteredService() {
+    return this.myServices.filter(service =>
+      service.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  addToCart(product: any) {
+    this.cart.push(product);
+  }
+
+
+  get Sum() {
+    let sum = 0; 
+    for (let item of this.cart) 
+    { sum = sum + item.price; } 
+    return sum;
+
+  }
+}
+
+bootstrapApplication(App);
 
 
 
